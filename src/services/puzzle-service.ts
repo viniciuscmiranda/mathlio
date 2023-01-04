@@ -1,18 +1,17 @@
+// TODO: remove mocked data
 import type { Puzzle } from "types";
-
-import { generatePuzzle } from "../../../mathlio-tests/src/lib/generate-puzzle";
 
 export class PuzzleService {
   async getPuzzle(_date: Date): Promise<Puzzle> {
-    const puzzles = [generatePuzzle(), generatePuzzle(), generatePuzzle()];
+    const puzzle: Puzzle = {
+      date: new Date(),
+      problem: [1, 1, 2, 2, 5, 1, 0, 9, 3, 6],
+      solutions: ["1+1=2", "2*5=10", "9-3=6"],
+    };
 
     return new Promise<Puzzle>((resolve) => {
       setTimeout(() => {
-        resolve({
-          date: new Date(),
-          problem: puzzles.flatMap((puzzle) => puzzle.problem),
-          solutions: puzzles.map((puzzle) => puzzle.solution),
-        });
+        resolve(puzzle);
       }, 300);
     });
   }
