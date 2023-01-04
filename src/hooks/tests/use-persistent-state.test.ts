@@ -29,12 +29,6 @@ describe("use persistent state", () => {
     act(() => result.current[1](next));
 
     expect(result.current[0]).toBe(next);
-
-    // clears the value
-    act(() => result.current[2]());
-
-    // the state does not change when the clear function is called
-    expect(result.current[0]).toBe(next);
   });
 
   it("should interacts with the store", () => {
@@ -55,10 +49,6 @@ describe("use persistent state", () => {
     act(() => result.current[1](next2));
 
     expect(storage.getItem(key)).toBe(JSON.stringify(next2));
-
-    act(() => result.current[2]());
-
-    expect(storage.getItem(key)).toBeNull();
   });
 
   it("should use the storage value as the initial state", () => {

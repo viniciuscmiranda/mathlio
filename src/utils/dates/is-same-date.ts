@@ -1,17 +1,17 @@
 type DateParsable = string | number | Date;
 
-export function isSameDate(date1: DateParsable, date2: DateParsable): boolean {
-  const date1Parsed = new Date(date1);
-  const date2Parsed = new Date(date2);
+export function isSameDate(a: DateParsable, b: DateParsable): boolean {
+  const dateA = new Date(a);
+  const dateB = new Date(b);
 
-  const isDate1Invalid = Number.isNaN(date1Parsed.getTime());
-  const isDate2Invalid = Number.isNaN(date2Parsed.getTime());
+  const isInvalid =
+    Number.isNaN(dateA.getTime()) || Number.isNaN(dateB.getTime());
 
-  if (isDate1Invalid || isDate2Invalid) return false;
+  if (isInvalid) return false;
 
-  const isSameYear = date1Parsed.getFullYear() === date2Parsed.getFullYear();
-  const isSameMonth = date1Parsed.getMonth() === date2Parsed.getMonth();
-  const isSameDay = date1Parsed.getDate() === date2Parsed.getDate();
+  const isSameYear = dateA.getFullYear() === dateB.getFullYear();
+  const isSameMonth = dateA.getMonth() === dateB.getMonth();
+  const isSameDay = dateA.getDate() === dateB.getDate();
 
   return isSameYear && isSameMonth && isSameDay;
 }

@@ -1,8 +1,7 @@
-import { useCallback, useMemo, useLayoutEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { GAME_BOARD_ROWS, GAME_MIN_RESULT } from "constants/game";
 import { STORAGE_BOARD_STATE } from "constants/storage";
 import { usePersistentState } from "hooks/use-persistent-state";
-import { usePuzzle } from "hooks/use-puzzle";
 import { BoardContext, type BoardContextData } from "contexts/board-context";
 import {
   placeArrayElement,
@@ -20,11 +19,10 @@ import { BoardRowStatus } from "constants/enums";
 import type { Equation } from "types";
 
 export const BoardProvider = (props: React.PropsWithChildren) => {
-  const { isPuzzleUpdate: isDailyPuzzleUpdated } = usePuzzle();
-
-  const [boardRows, setBoardRows, deleteBoardRows] = usePersistentState<
-    Equation[]
-  >(STORAGE_BOARD_STATE, getInitialBoardRows());
+  const [boardRows, setBoardRows] = usePersistentState<Equation[]>(
+    STORAGE_BOARD_STATE,
+    getInitialBoardRows()
+  );
 
   const boardRowStatuses: BoardRowStatus[] = useMemo(() => {
     return boardRows.map((rowEquation) => {
@@ -54,10 +52,6 @@ export const BoardProvider = (props: React.PropsWithChildren) => {
   function getInitialBoardRows(rows = GAME_BOARD_ROWS) {
     return Array(rows).fill([]);
   }
-
-  useLayoutEffect(() => {
-    if (!isDailyPuzzleUpdated) deleteBoardRows();
-  }, [isDailyPuzzleUpdated, deleteBoardRows]);
 
   const setRow = useCallback(
     (rowIndex: number, rowData: (prevRow: Equation) => Equation) => {

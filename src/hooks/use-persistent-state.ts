@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 
 type UsePersistentStateResponse<T> = [
   value: T,
-  setValue: React.Dispatch<React.SetStateAction<T>>,
-  deleteValue: () => void
+  setValue: React.Dispatch<React.SetStateAction<T>>
 ];
 
 export function usePersistentState<T = undefined>(
@@ -44,9 +43,5 @@ export function usePersistentState<T>(
     }
   }, [value]);
 
-  const deleteValue = useCallback(() => {
-    storage.removeItem(key);
-  }, [key]);
-
-  return [value, setValue, deleteValue];
+  return [value, setValue];
 }

@@ -1,8 +1,8 @@
-import { useCallback, useLayoutEffect } from "react";
-import { STORAGE_BENCH_STATE } from "constants/storage";
-import { usePersistentState } from "hooks/use-persistent-state";
+import { useCallback, useState } from "react";
 import { usePuzzle } from "hooks/use-puzzle";
+import { useBoard } from "hooks/use-board";
 import { BenchContext, type BenchContextData } from "contexts/bench-context";
+import { isNumber } from "utils/math";
 import {
   shuffleArray,
   moveArrayIndex,
@@ -11,18 +11,28 @@ import {
 } from "utils/arrays";
 
 export const BenchProvider = (props: React.PropsWithChildren) => {
-  const { puzzle: dailyPuzzle, isPuzzleUpdate: isDailyPuzzleUpdated } =
-    usePuzzle();
+  const { puzzle } = usePuzzle();
+  const { boardRows } = useBoard();
 
-  const [benchNumbers, setBenchNumbers, deleteBenchNumbers] =
-    usePersistentState<number[]>(
-      STORAGE_BENCH_STATE,
-      dailyPuzzle?.problem || []
-    );
+  const [benchNumbers, setBenchNumbers] = useState<number[]>(getInitialBench());
 
-  useLayoutEffect(() => {
-    if (!isDailyPuzzleUpdated) deleteBenchNumbers();
-  }, [isDailyPuzzleUpdated, deleteBenchNumbers]);
+  function getInitialBench(): number[] {
+    const placedNumbers = boardRows.flat().filter(isNumber);
+
+    // removes numbers that are placed in the board
+    const initialBench = puzzle?.problem.filter((number) => {
+      const placedNumberIndex = placedNumbers.indexOf(number);
+
+      if (placedNumberIndex !== -1) {
+        placedNumbers.splice(placedNumberIndex, 1);
+        return false;
+      }
+
+      return true;
+    });
+
+    return initialBench || [];
+  }
 
   const placeBenchNumber = useCallback<BenchContextData["placeBenchNumber"]>(
     (number, position) => {

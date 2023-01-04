@@ -17,22 +17,20 @@ export const App = () => {
   return (
     <PuzzleProvider>
       <PuzzleContext.Consumer>
-        {({ isLoadingPuzzle: isLoadingDailyPuzzle }) => {
-          if (isLoadingDailyPuzzle) {
-            return <Splash />;
-          }
-
-          return (
-            <BenchProvider>
-              <BoardProvider>
+        {({ isLoadingPuzzle }) =>
+          isLoadingPuzzle ? (
+            <Splash />
+          ) : (
+            <BoardProvider>
+              <BenchProvider>
                 <GameProvider>
                   <Game />
                   <KeyboardManager />
                 </GameProvider>
-              </BoardProvider>
-            </BenchProvider>
-          );
-        }}
+              </BenchProvider>
+            </BoardProvider>
+          )
+        }
       </PuzzleContext.Consumer>
     </PuzzleProvider>
   );

@@ -1,42 +1,37 @@
-import { useCallback, useState, useLayoutEffect, useMemo, useRef } from "react";
+import { useCallback, useState, useEffect, useMemo, useRef } from "react";
 import { usePersistentState } from "hooks/use-persistent-state";
 import { PuzzleContext } from "contexts/puzzle-context";
 import { PuzzleService } from "services/puzzle-service";
-import { STORAGE_DAILY_PUZZLE } from "constants/storage";
+import { STORAGE_BOARD_STATE, STORAGE_PUZZLE } from "constants/storage";
 import { isSameDate, getToday } from "../utils/dates";
 import type { Puzzle } from "types";
 
 export const PuzzleProvider = (props: React.PropsWithChildren) => {
-  const dailyPuzzleService = useRef(new PuzzleService());
+  const puzzleService = useRef(new PuzzleService());
 
-  const [dailyPuzzle, setDailyPuzzle, deleteDailyPuzzle] =
-    usePersistentState<Puzzle>(STORAGE_DAILY_PUZZLE);
+  const [puzzle, setPuzzle] = usePersistentState<Puzzle>(STORAGE_PUZZLE);
 
-  const isDailyPuzzleUpdated = useMemo(() => {
-    if (!dailyPuzzle) return false;
-
-    const today = getToday();
-    return isSameDate(dailyPuzzle?.date, today);
-  }, [dailyPuzzle]);
-
-  const [isLoadingDailyPuzzle, setIsLoadingDailyPuzzle] = useState(
-    !isDailyPuzzleUpdated
+  const isPuzzleUpdated = Boolean(
+    puzzle && isSameDate(puzzle.date, getToday())
   );
 
-  const fetchDailyPuzzle = useCallback(async () => {
-    setIsLoadingDailyPuzzle(true);
+  const [isLoadingPuzzle, setIsLoadingPuzzle] = useState(!isPuzzleUpdated);
+
+  const fetchPuzzle = useCallback(async () => {
+    setIsLoadingPuzzle(true);
 
     const today = getToday();
-    const response = await dailyPuzzleService.current.getPuzzle(today);
+    const response = await puzzleService.current.getPuzzle(today);
 
-    setDailyPuzzle(response);
-    setIsLoadingDailyPuzzle(false);
-  }, [setDailyPuzzle]);
+    setPuzzle(response);
+    setIsLoadingPuzzle(false);
+  }, [setPuzzle]);
 
-  useLayoutEffect(() => {
-    if (!isDailyPuzzleUpdated) {
-      deleteDailyPuzzle();
-      fetchDailyPuzzle();
+  useEffect(() => {
+    if (!isPuzzleUpdated) {
+      localStorage.removeItem(STORAGE_PUZZLE);
+      localStorage.removeItem(STORAGE_BOARD_STATE);
+      fetchPuzzle();
     }
   }, []);
 
@@ -44,9 +39,8 @@ export const PuzzleProvider = (props: React.PropsWithChildren) => {
     <PuzzleContext.Provider
       {...props}
       value={{
-        puzzle: dailyPuzzle,
-        isLoadingPuzzle: isLoadingDailyPuzzle,
-        isPuzzleUpdate: isDailyPuzzleUpdated,
+        puzzle,
+        isLoadingPuzzle,
       }}
     />
   );
